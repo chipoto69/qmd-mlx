@@ -21,9 +21,10 @@ qmd sandbox: .sandbox/qmd
 qmd branch:  rudy/mlx-openai-provider
 basis:       qmd PR #619, reference/pr-619-openai-compatible at d6c66e9
 related:     qmd PR #689, reference/pr-689-openai-provider
-server:      vMLX on http://127.0.0.1:8092/v1
+server:      fake provider on http://127.0.0.1:18092/v1 for deterministic contract tests
+server:      vMLX on http://127.0.0.1:8092/v1 for live MLX runtime tests
 fixture:     tests/fixtures/trace-packets/agent-trace-sample.md
-index:       .qmd-test-home/pr619-vmlx/index.sqlite
+indexes:     .qmd-test-home/pr619-fake-openai/index.sqlite and .qmd-test-home/pr619-vmlx/index.sqlite
 ```
 
 Commands run:
@@ -31,6 +32,7 @@ Commands run:
 ```bash
 cd /Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx
 scripts/verify.sh
+scripts/test-qmd-pr619-fake-openai.sh
 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
 ```
 
@@ -38,18 +40,20 @@ Observed result:
 
 ```text
 scripts/verify.sh: pass
+fake provider contract: pass; qmd hit /v1/models, /v1/embeddings, /v1/rerank, and /v1/chat/completions; Authorization forwarding verified; isolated index writes verified
 vMLX /v1/embeddings exact local model path: pass, 1024-dim vectors
 vMLX /v1/embeddings qmd-embed alias: fail, 400 alias rejected
 vMLX /v1/rerank Qwen3 reranker: fail, 500 'BaseModelOutput' object has no attribute 'shape'
 qmd update/embed/vsearch/query --no-rerank through PR #619 provider: pass
-qmd query with rerank: fail-soft; qmd logs the rerank 500 and returns fallback retrieval scores
+qmd query with rerank against vMLX: fail-soft; qmd logs the rerank 500 and returns fallback retrieval scores
 ```
 
 Bottom line:
 
 ```text
-The OpenAI-compatible embedding/vector retrieval path works locally.
-The rerank path does not work yet with vMLX + mlx-community/Qwen3-Reranker-0.6B-mxfp8.
+The PR #619 OpenAI-compatible provider contract works against a deterministic fake server.
+The live MLX embedding/vector retrieval path works locally.
+The live rerank path does not work yet with vMLX + mlx-community/Qwen3-Reranker-0.6B-mxfp8.
 ```
 
 ## Reproduce from a fresh checkout
@@ -62,6 +66,10 @@ scripts/setup-dev-env.sh
 scripts/download-mlx-models.sh
 scripts/clone-qmd-sandbox.sh
 
+# Deterministic contract test. No MLX/vMLX runtime required.
+scripts/test-qmd-pr619-fake-openai.sh
+
+# Live MLX runtime diagnostic.
 scripts/start-vmlx-embedding-server.sh
 
 # New terminal:
@@ -96,19 +104,18 @@ If Hermes reports a fresh startup from another checkout but `/v1/models` still s
 
 ## Next PR-safe steps
 
-1. Add provider contract tests around PR #619 behavior using a fake OpenAI-compatible HTTP server.
-2. Decide rerank server path:
+1. Decide rerank server path:
    - fix/debug vMLX Qwen3 reranker output handling, or
    - test embed-rerank/Jina-compatible rerank server, or
    - keep qmd `--no-rerank` for the first trace-index pilot.
-3. Add a tiny benchmark comparing stock GGUF qmd vs MLX-provider qmd on the same public fixture first.
-4. Only after private trace evals show improvement, prepare an upstream qmd branch.
-5. Do not open an upstream qmd PR unless Rudy explicitly asks for one.
+2. Add a tiny benchmark comparing stock GGUF qmd vs MLX-provider qmd on the same public fixture first.
+3. Only after private trace evals show improvement, prepare an upstream qmd branch.
+4. Do not open an upstream qmd PR unless Rudy explicitly asks for one.
 
 ## Verification snapshot
 
 ```text
-git status: clean, main tracks origin/main
-HEAD: 3d42090 before this handoff file; rerun git log for current commit
+git status: clean after committed/pushed; verify with `git status -sb`
+required checks: scripts/verify.sh; scripts/test-qmd-pr619-fake-openai.sh; QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
 remote: PUBLIC https://github.com/chipoto69/qmd-mlx
 ```

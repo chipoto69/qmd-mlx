@@ -39,7 +39,15 @@ What failed:
 Current verdict:
 
 ```text
-embedding/vector path: works
+provider contract path: works against deterministic fake OpenAI-compatible server
+embedding/vector path: works against live vMLX when qmd uses exact local embedding model path
 rerank path: blocked by vMLX/Qwen3 reranker compatibility
-upstream PR readiness: not yet; needs provider contract tests and rerank-server decision
+upstream PR readiness: not yet; contract test exists, rerank-server decision and benchmark still needed
 ```
+
+Additional 2026-05-31 checkpoint:
+
+- Added `tests/fakes/fake_openai_provider.py`, a dependency-free fake OpenAI-compatible server.
+- Added `scripts/test-qmd-pr619-fake-openai.sh` to verify qmd PR #619 hits `/v1/models`, `/v1/embeddings`, `/v1/rerank`, and `/v1/chat/completions` with expected model IDs.
+- The fake-provider test verifies `Authorization` forwarding, qmd embedding/vector/rerank/query-expansion behavior, fixture retrieval, and isolated SQLite index writes.
+- Measured fake-provider request counts: `/v1/chat/completions`: 2, `/v1/embeddings`: 6, `/v1/models`: 2, `/v1/rerank`: 2.

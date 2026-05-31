@@ -51,6 +51,9 @@ scripts/clone-qmd-sandbox.sh
 # Run repo-level verification
 scripts/verify.sh
 
+# Run a deterministic fake-provider contract test for PR #619 surfaces
+scripts/test-qmd-pr619-fake-openai.sh
+
 # Start or reuse the local vMLX embedding server on 127.0.0.1:8092
 scripts/start-vmlx-embedding-server.sh
 
@@ -82,9 +85,10 @@ The committed repo contains reproducible scripts and plans only. Generated work 
 
 ## Current local result
 
-Measured on 2026-05-31 against qmd PR #619 in `.sandbox/qmd` and vMLX on `http://127.0.0.1:8092/v1`:
+Measured on 2026-05-31 against qmd PR #619 in `.sandbox/qmd`, the deterministic fake OpenAI-compatible provider, and vMLX on `http://127.0.0.1:8092/v1`:
 
 ```text
+PASS: fake OpenAI-compatible contract covers /v1/embeddings, /v1/rerank, /v1/chat/completions, /v1/models, Authorization forwarding, qmd embed/vsearch/query, and isolated index writes.
 PASS: qmd update/embed/vsearch/query --no-rerank work through PR #619's OpenAI-compatible provider using the MLX embedding model.
 PARTIAL: rerank does not work with vMLX + mlx-community/Qwen3-Reranker-0.6B-mxfp8; vMLX returns 500: 'BaseModelOutput' object has no attribute 'shape'.
 QUIRK: vMLX lists qmd-embed in /v1/models, but /v1/embeddings rejects that alias. Use the exact local embedding-model path for embeddings.
