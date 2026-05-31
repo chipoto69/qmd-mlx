@@ -1,0 +1,14 @@
+qmd stock GGUF bench summary:
+  bm25: P@k=0.500 Recall=0.500 MRR=0.500 F1=0.500 Avg=2.0ms
+  vector: P@k=0.900 Recall=1.000 MRR=0.867 F1=0.900 Avg=260.0ms
+  hybrid: P@k=1.000 Recall=1.000 MRR=1.000 F1=1.000 Avg=10787.0ms
+  full: P@k=1.000 Recall=1.000 MRR=1.000 F1=1.000 Avg=6651.0ms
+
+Index:
+  path=/Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx/.qmd-test-home/pr619-gguf-bench/index.sqlite
+  size_bytes=3350528
+  documents=6
+  content=6
+  content_vectors=9
+  vectors_vec_chunks=1
+  llm_cache=70

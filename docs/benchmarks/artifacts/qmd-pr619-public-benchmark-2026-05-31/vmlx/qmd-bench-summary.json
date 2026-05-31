@@ -1,0 +1,32 @@
+{
+  "summary": {
+    "bm25": {
+      "avg_precision": 0.5,
+      "avg_recall": 0.5,
+      "avg_mrr": 0.5,
+      "avg_f1": 0.5,
+      "avg_latency_ms": 1.0
+    },
+    "vector": {
+      "avg_precision": 1.0,
+      "avg_recall": 1.0,
+      "avg_mrr": 1.0,
+      "avg_f1": 1.0,
+      "avg_latency_ms": 43.0
+    },
+    "hybrid": {
+      "avg_precision": 1.0,
+      "avg_recall": 1.0,
+      "avg_mrr": 1.0,
+      "avg_f1": 1.0,
+      "avg_latency_ms": 7289.0
+    },
+    "full": {
+      "avg_precision": 1.0,
+      "avg_recall": 1.0,
+      "avg_mrr": 1.0,
+      "avg_f1": 1.0,
+      "avg_latency_ms": 3049.0
+    }
+  }
+}

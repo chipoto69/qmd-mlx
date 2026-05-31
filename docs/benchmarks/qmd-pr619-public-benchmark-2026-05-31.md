@@ -38,10 +38,11 @@ GGUF logs:      .tmp/bench-pr619-gguf/
 GGUF index:     .qmd-test-home/pr619-gguf-bench/index.sqlite
 ```
 
-Committed summary:
+Committed summary and raw text/JSON artifacts:
 
 ```text
 docs/benchmarks/qmd-pr619-public-benchmark-2026-05-31.md
+docs/benchmarks/artifacts/qmd-pr619-public-benchmark-2026-05-31/
 ```
 
 ## vMLX endpoint microbench

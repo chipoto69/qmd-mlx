@@ -1,0 +1,53 @@
+{
+  "base_url": "http://127.0.0.1:8092/v1",
+  "models_get_ms": 17.61,
+  "advertised_models": [
+    "qmd-embed",
+    "mlx/mlx-community__Qwen3-Embedding-0.6B-4bit-DWQ",
+    "/Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx/models/mlx/mlx-community__Qwen3-Embedding-0.6B-4bit-DWQ"
+  ],
+  "embedding": {
+    "model": "/Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx/models/mlx/mlx-community__Qwen3-Embedding-0.6B-4bit-DWQ",
+    "dim": 1024,
+    "norm_first_vector": 0.999567,
+    "latency": {
+      "count": 10,
+      "mean_ms": 12.77,
+      "p50_ms": 9.0,
+      "p95_ms": 38.67,
+      "min_ms": 8.04,
+      "max_ms": 38.67
+    }
+  },
+  "rerank": {
+    "model": "/Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx/models/mlx/mlx-community__Qwen3-Reranker-0.6B-mxfp8",
+    "top_index": 0,
+    "scores": [
+      0.399811640739795,
+      0.13296424019782926,
+      0.010013570623173138,
+      0.0027149854690051763
+    ],
+    "scores_bounded_0_1": true,
+    "latency": {
+      "count": 10,
+      "mean_ms": 166.79,
+      "p50_ms": 151.14,
+      "p95_ms": 373.68,
+      "min_ms": 49.59,
+      "max_ms": 373.68
+    }
+  },
+  "chat_completion": {
+    "model": "qmd-embed",
+    "latency": {
+      "count": 3,
+      "mean_ms": 425.83,
+      "p50_ms": 278.01,
+      "p95_ms": 752.04,
+      "min_ms": 247.45,
+      "max_ms": 752.04
+    },
+    "note": "Current server uses qmd-embed alias for generation smoke only; this is not a quality generation benchmark."
+  }
+}

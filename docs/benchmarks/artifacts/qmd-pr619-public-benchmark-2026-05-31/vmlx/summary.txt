@@ -1,0 +1,19 @@
+Endpoint microbench:
+  embeddings: dim=1024 mean=12.77ms p95=38.67ms n=10
+  rerank: top_index=0 bounded=True mean=166.79ms p95=373.68ms n=10
+  chat smoke: mean=425.83ms n=3
+
+qmd bench summary:
+  bm25: P@k=0.500 Recall=0.500 MRR=0.500 F1=0.500 Avg=1.0ms
+  vector: P@k=1.000 Recall=1.000 MRR=1.000 F1=1.000 Avg=43.0ms
+  hybrid: P@k=1.000 Recall=1.000 MRR=1.000 F1=1.000 Avg=7289.0ms
+  full: P@k=1.000 Recall=1.000 MRR=1.000 F1=1.000 Avg=3049.0ms
+
+Index:
+  path=/Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx/.qmd-test-home/pr619-vmlx-bench/index.sqlite
+  size_bytes=4395008
+  documents=6
+  content=6
+  content_vectors=9
+  vectors_vec_chunks=1
+  llm_cache=70

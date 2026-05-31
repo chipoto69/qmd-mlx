@@ -1,0 +1,59 @@
+
+Query                     Backend  P@k    Recall  MRR    F1     ms      
+----------------------------------------------------------------------
+exact-api                 bm25      1.00  1.00   1.00  1.00       7ms
+exact-api                 vector    1.00  1.00   1.00  1.00    2142ms
+exact-api                 hybrid    1.00  1.00   1.00  1.00   13044ms
+exact-api                 full      1.00  1.00   1.00  1.00    9020ms
+
+exact-fundraising         bm25      1.00  1.00   1.00  1.00       2ms
+exact-fundraising         vector    0.00  1.00   0.33  0.00      51ms
+exact-fundraising         hybrid    1.00  1.00   1.00  1.00    7651ms
+exact-fundraising         full      1.00  1.00   1.00  1.00    6519ms
+
+exact-cap                 bm25      1.00  1.00   1.00  1.00       3ms
+exact-cap                 vector    1.00  1.00   1.00  1.00      60ms
+exact-cap                 hybrid    1.00  1.00   1.00  1.00    6441ms
+exact-cap                 full      1.00  1.00   1.00  1.00    6017ms
+
+semantic-rest             bm25      0.00  0.00   0.00  0.00       1ms
+semantic-rest             vector    1.00  1.00   1.00  1.00      67ms
+semantic-rest             hybrid    1.00  1.00   1.00  1.00    4613ms
+semantic-rest             full      1.00  1.00   1.00  1.00    5867ms
+
+semantic-fundraising      bm25      1.00  1.00   1.00  1.00       1ms
+semantic-fundraising      vector    1.00  1.00   0.33  1.00      34ms
+semantic-fundraising      hybrid    1.00  1.00   1.00  1.00    5317ms
+semantic-fundraising      full      1.00  1.00   1.00  1.00    6262ms
+
+semantic-overfitting      bm25      0.00  0.00   0.00  0.00       4ms
+semantic-overfitting      vector    1.00  1.00   1.00  1.00      47ms
+semantic-overfitting      hybrid    1.00  1.00   1.00  1.00    8170ms
+semantic-overfitting      full      1.00  1.00   1.00  1.00    7063ms
+
+topical-launch            bm25      0.00  0.00   0.00  0.00       1ms
+topical-launch            vector    1.00  1.00   1.00  1.00      40ms
+topical-launch            hybrid    1.00  1.00   1.00  1.00    5098ms
+topical-launch            full      1.00  1.00   1.00  1.00    5913ms
+
+cross-domain-consistency  bm25      0.00  0.00   0.00  0.00       1ms
+cross-domain-consistency  vector    1.00  1.00   1.00  1.00      42ms
+cross-domain-consistency  hybrid    1.00  1.00   1.00  1.00    5453ms
+cross-domain-consistency  full      1.00  1.00   1.00  1.00    5786ms
+
+alias-remote              bm25      0.00  0.00   0.00  0.00       2ms
+alias-remote              vector    1.00  1.00   1.00  1.00      40ms
+alias-remote              hybrid    1.00  1.00   1.00  1.00    5509ms
+alias-remote              full      1.00  1.00   1.00  1.00    7219ms
+
+hard-partial              bm25      1.00  1.00   1.00  1.00       2ms
+hard-partial              vector    1.00  1.00   1.00  1.00      81ms
+hard-partial              hybrid    1.00  1.00   1.00  1.00   46570ms
+hard-partial              full      1.00  1.00   1.00  1.00    6842ms
+
+Summary:
+----------------------------------------------------------------------
+  bm25     P@k= 0.500 Recall= 0.500 MRR= 0.500 F1= 0.500 Avg=2ms
+  vector   P@k= 0.900 Recall= 1.000 MRR= 0.867 F1= 0.900 Avg=260ms
+  hybrid   P@k= 1.000 Recall= 1.000 MRR= 1.000 F1= 1.000 Avg=10787ms
+  full     P@k= 1.000 Recall= 1.000 MRR= 1.000 F1= 1.000 Avg=6651ms
