@@ -59,6 +59,10 @@ scripts/start-vmlx-embedding-server.sh
 
 # New terminal: run the local qmd PR #619 + vMLX integration diagnostic
 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
+
+# Run tiny public benchmark/eval lanes
+QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/benchmark-qmd-pr619-vmlx.sh
+scripts/benchmark-qmd-pr619-gguf.sh
 ```
 
 ## Default MLX models for the first experiment
@@ -90,6 +94,7 @@ Measured on 2026-05-31 against qmd PR #619 in `.sandbox/qmd`, the deterministic 
 ```text
 PASS: fake OpenAI-compatible contract covers /v1/embeddings, /v1/rerank, /v1/chat/completions, /v1/models, Authorization forwarding, qmd embed/vsearch/query, and isolated index writes.
 PASS: qmd update/embed/vsearch/query/rerank work through PR #619's OpenAI-compatible provider after applying the local vMLX Qwen3 reranker patch in `patches/vmlx-1.5.49-qwen3-reranker-causal.patch`.
+PASS: tiny public benchmark saved in `docs/benchmarks/qmd-pr619-public-benchmark-2026-05-31.md`; MLX full pipeline averaged 3049 ms vs stock GGUF 6651 ms on the same fixture.
 FIXED LOCALLY: vMLX Qwen3 reranker was misrouted through `mlx_embeddings` and returned raw negative logit margins; the local patch routes it through `mlx_lm` and sigmoid-normalizes relevance scores.
 QUIRK: vMLX lists qmd-embed in /v1/models, but /v1/embeddings rejects that alias. Use the exact local embedding-model path for embeddings.
 ```

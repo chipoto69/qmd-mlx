@@ -60,3 +60,11 @@ Rerank root-cause checkpoint:
 - Verified direct local vMLX reranker path: backend `causal`, bounded scores `0.418697` vs `0.148047` for relevant vs irrelevant docs.
 - Verified live `/v1/rerank`: HTTP 200 with bounded `relevance_score` values.
 - Verified qmd PR #619 live path with `REQUIRE_RERANK=1`: `RESULT=PASS: qmd OpenAI-compatible MLX provider path passed including rerank` and returned `qmd://TRACE_FIXTURE/agent-trace-sample.md` with score `0.76`.
+
+Public benchmark checkpoint:
+
+- Added `scripts/benchmark-qmd-pr619-vmlx.sh` and `scripts/benchmark-qmd-pr619-gguf.sh`.
+- Saved committed benchmark summary at `docs/benchmarks/qmd-pr619-public-benchmark-2026-05-31.md`.
+- vMLX endpoint microbench: embeddings mean 12.77 ms / p95 38.67 ms; rerank mean 166.79 ms / p95 373.68 ms.
+- qmd bench on tiny public `eval-docs` fixture: MLX full pipeline P@k/Recall/MRR/F1 all 1.000, avg 3049 ms; stock GGUF full pipeline P@k/Recall/MRR/F1 all 1.000, avg 6651 ms.
+- This is smoke evidence only. Next quality gate is private 30-50 trace-query eval with recall@20, MRR/nDCG, and citation quality.

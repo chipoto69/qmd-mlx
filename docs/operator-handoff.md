@@ -34,6 +34,8 @@ cd /Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx
 scripts/verify.sh
 scripts/test-qmd-pr619-fake-openai.sh
 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
+QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/benchmark-qmd-pr619-vmlx.sh
+scripts/benchmark-qmd-pr619-gguf.sh
 ```
 
 Observed result:
@@ -45,6 +47,8 @@ vMLX /v1/embeddings exact local model path: pass, 1024-dim vectors
 vMLX /v1/embeddings qmd-embed alias: fail, 400 alias rejected
 vMLX /v1/rerank Qwen3 reranker: pass after local vMLX 1.5.49 patch; endpoint returns bounded relevance_score values
 qmd update/embed/vsearch/query/rerank through PR #619 provider: pass with REQUIRE_RERANK=1
+benchmark vMLX public fixture: pass; full pipeline P@k/Recall/MRR/F1 all 1.000; avg full latency 3049 ms
+benchmark stock GGUF public fixture: pass; full pipeline P@k/Recall/MRR/F1 all 1.000; avg full latency 6651 ms
 ```
 
 Bottom line:
@@ -52,6 +56,7 @@ Bottom line:
 ```text
 The PR #619 OpenAI-compatible provider contract works against a deterministic fake server.
 The live MLX embedding/vector/rerank path works locally after applying the vMLX 1.5.49 Qwen3 reranker patch.
+The tiny public benchmark now gives a reproducible smoke comparison: MLX full pipeline averaged 3049 ms vs stock GGUF 6651 ms on the same fixture.
 The remaining live runtime caveat is vMLX embedding alias rejection for `qmd-embed`.
 ```
 
@@ -73,6 +78,10 @@ scripts/start-vmlx-embedding-server.sh
 
 # New terminal:
 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
+
+# Tiny public benchmark/eval comparison.
+QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/benchmark-qmd-pr619-vmlx.sh
+scripts/benchmark-qmd-pr619-gguf.sh
 ```
 
 The live diagnostic now passes with rerank when the local vMLX patch is applied:
@@ -111,14 +120,15 @@ If Hermes reports a fresh startup from another checkout but `/v1/models` still s
 
 1. Turn `patches/vmlx-1.5.49-qwen3-reranker-causal.patch` into an upstream-ready vMLX branch or a local reapply script with checksum verification.
 2. Fix or work around vMLX embedding alias handling so `qmd-embed` works for `/v1/embeddings`, or keep qmd configured to the exact local model path.
-3. Add a tiny benchmark comparing stock GGUF qmd vs MLX-provider qmd on the same public fixture first.
-4. Only after private trace evals show improvement, prepare an upstream qmd branch.
-5. Do not open an upstream qmd PR unless Rudy explicitly asks for one.
+3. Build the private trace eval set outside this public repo and run 30-50 real trace-query cases.
+4. Measure recall@20, MRR/nDCG after rerank, and answer citation quality against Rudy's real corpus.
+5. Only after private trace evals show improvement, prepare an upstream qmd branch.
+6. Do not open an upstream qmd PR unless Rudy explicitly asks for one.
 
 ## Verification snapshot
 
 ```text
 git status: clean after committed/pushed; verify with `git status -sb`
-required checks: scripts/verify.sh; scripts/test-qmd-pr619-fake-openai.sh; REQUIRE_RERANK=1 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
+required checks: scripts/verify.sh; scripts/test-qmd-pr619-fake-openai.sh; REQUIRE_RERANK=1 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh; QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/benchmark-qmd-pr619-vmlx.sh; scripts/benchmark-qmd-pr619-gguf.sh
 remote: PUBLIC https://github.com/chipoto69/qmd-mlx
 ```

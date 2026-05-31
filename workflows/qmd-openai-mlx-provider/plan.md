@@ -35,9 +35,9 @@ Target behaviors:
 - [x] Smoke-test oMLX or vMLX embeddings endpoint
 - [x] Smoke-test rerank endpoint
 - [x] Run qmd embed/query against tiny public fixtures
-- [ ] Compare current GGUF qmd vs MLX server on latency and ranking quality
+- [x] Compare current GGUF qmd vs MLX server on latency and ranking quality
 
-Phase 3 note, 2026-05-31: embeddings and qmd vector retrieval passed. Rerank endpoint was tested and failed in vMLX with `BaseModelOutput.shape`; treat rerank as blocked, not untested.
+Phase 3 note, 2026-05-31: embeddings, rerank, qmd vector retrieval, and qmd full query now pass against live vMLX after applying `patches/vmlx-1.5.49-qwen3-reranker-causal.patch`. The tiny public benchmark is saved in `docs/benchmarks/qmd-pr619-public-benchmark-2026-05-31.md`; MLX full pipeline averaged 3049 ms vs stock GGUF 6651 ms on the same fixture. Treat this as smoke evidence only; private trace evals are still required.
 
 ## Phase 4 - Trace eval harness
 
