@@ -5,8 +5,8 @@
 - [x] Dedicated repo with charter and ignores
 - [x] Scripts for qmd sandbox clone and PR reference fetch
 - [x] Scripts for MLX model download
-- [ ] Confirm qmd sandbox dependency install
-- [ ] Capture PR #619 diff notes into implementation checklist
+- [x] Confirm qmd sandbox dependency install
+- [x] Capture PR #619 diff notes into implementation checklist
 
 ## Phase 1 - Provider contract tests
 
@@ -32,10 +32,12 @@ Target behaviors:
 
 ## Phase 3 - MLX server validation
 
-- [ ] Smoke-test oMLX or vMLX embeddings endpoint
-- [ ] Smoke-test rerank endpoint
-- [ ] Run qmd embed/query against tiny public fixtures
+- [x] Smoke-test oMLX or vMLX embeddings endpoint
+- [x] Smoke-test rerank endpoint
+- [x] Run qmd embed/query against tiny public fixtures
 - [ ] Compare current GGUF qmd vs MLX server on latency and ranking quality
+
+Phase 3 note, 2026-05-31: embeddings and qmd vector retrieval passed. Rerank endpoint was tested and failed in vMLX with `BaseModelOutput.shape`; treat rerank as blocked, not untested.
 
 ## Phase 4 - Trace eval harness
 

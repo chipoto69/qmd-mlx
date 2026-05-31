@@ -7,6 +7,7 @@ RERANK_MODEL="${QMD_MLX_RERANK_MODEL:-mlx-community/Qwen3-Reranker-0.6B-mxfp8}"
 
 python3 - <<PY
 import json
+import urllib.error
 import urllib.request
 
 base = "$BASE_URL".rstrip('/')
@@ -20,14 +21,21 @@ def post(path, payload):
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.loads(r.read().decode())
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return r.status, json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode(errors="replace")[:1200]
 
 print('smoke embeddings:', base + '/embeddings')
-emb = post('/embeddings', {"model": embed_model, "input": ["MLX runs on Apple Silicon", "qmd does hybrid retrieval"]})
+status, emb = post('/embeddings', {"model": embed_model, "input": ["MLX runs on Apple Silicon", "qmd does hybrid retrieval"]})
+if status != 200:
+    raise SystemExit(f"embeddings failed status={status} body={emb}")
 print(json.dumps({"embedding_items": len(emb.get('data', [])), "first_dim": len(emb.get('data', [{}])[0].get('embedding', []))}, indent=2))
 
 print('smoke rerank:', base + '/rerank')
-rer = post('/rerank', {"model": rerank_model, "query": "Apple Silicon MLX retrieval", "documents": ["MLX uses Metal on Apple Silicon", "CUDA is for NVIDIA GPUs"], "top_n": 2})
+status, rer = post('/rerank', {"model": rerank_model, "query": "Apple Silicon MLX retrieval", "documents": ["MLX uses Metal on Apple Silicon", "CUDA is for NVIDIA GPUs"], "top_n": 2})
+if status != 200:
+    raise SystemExit(f"rerank failed status={status} body={rer}")
 print(json.dumps(rer, indent=2)[:2000])
 PY

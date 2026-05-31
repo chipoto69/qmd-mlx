@@ -1,4 +1,4 @@
-# qmd MLX Provider Lab - Agent Contract
+# qmd-mlx - Agent Contract
 
 ## Purpose
 

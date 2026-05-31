@@ -29,6 +29,22 @@ Use qmd PR #619 as the primary reference implementation. Do not blindly copy it.
 8. Only then consider an upstream-ready patch
 ```
 
+## Latest diagnostic
+
+Run:
+
+```bash
+QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
+```
+
+Result on 2026-05-31:
+
+```text
+qmd PR #619 + vMLX embeddings: pass
+qmd PR #619 + vMLX vector search/query --no-rerank: pass
+qmd PR #619 + vMLX rerank: fail-soft inside qmd because vMLX returns 500 for Qwen3 reranker
+```
+
 ## Acceptance criteria
 
 - A clean checkout can run `scripts/verify.sh`.

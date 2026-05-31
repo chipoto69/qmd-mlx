@@ -1,6 +1,6 @@
-# qmd MLX Provider Lab
+# qmd-mlx
 
-Isolated public lab for enhancing qmd with an OpenAI-compatible provider path that can use MLX-backed servers for embeddings, reranking, and query expansion.
+Dedicated public lab for enhancing qmd with an OpenAI-compatible provider path that can use MLX-backed servers for embeddings, reranking, and query expansion.
 
 This repo is deliberately not the production qmd install. It is the clean lane for development, testing, and eventual upstream-ready patches.
 
@@ -39,7 +39,7 @@ qmd expandQuery() -> POST /v1/chat/completions
 ## Quick start
 
 ```bash
-cd /Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx-provider-lab
+cd /Users/rudlord/ORGANIZED/ACTIVE_PROJECTS/qmd-mlx
 
 # Prepare Python tooling and download small MLX models
 scripts/setup-dev-env.sh
@@ -50,6 +50,9 @@ scripts/clone-qmd-sandbox.sh
 
 # Run repo-level verification
 scripts/verify.sh
+
+# Run the local qmd PR #619 + vMLX integration diagnostic
+QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
 ```
 
 ## Default MLX models for the first experiment
@@ -73,3 +76,13 @@ Reranker:  Qwen3-Reranker-4B via an MLX-compatible server, if available and vali
 No private traces. No model weights. No qmd indexes. No secrets.
 
 The committed repo contains reproducible scripts and plans only. Generated work lives in ignored folders.
+
+## Current local result
+
+Measured on 2026-05-31 against qmd PR #619 in `.sandbox/qmd` and vMLX on `http://127.0.0.1:8092/v1`:
+
+```text
+PASS: qmd update/embed/vsearch/query --no-rerank work through PR #619's OpenAI-compatible provider using the MLX embedding model.
+PARTIAL: rerank does not work with vMLX + mlx-community/Qwen3-Reranker-0.6B-mxfp8; vMLX returns 500: 'BaseModelOutput' object has no attribute 'shape'.
+QUIRK: vMLX lists qmd-embed in /v1/models, but /v1/embeddings rejects that alias. Use the exact local embedding-model path for embeddings.
+```
