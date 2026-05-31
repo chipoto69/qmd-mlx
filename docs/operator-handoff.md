@@ -62,14 +62,7 @@ scripts/setup-dev-env.sh
 scripts/download-mlx-models.sh
 scripts/clone-qmd-sandbox.sh
 
-/Users/rudlord/.local/bin/vmlx serve \
-  "$PWD/models/mlx/mlx-community__Qwen3-Embedding-0.6B-4bit-DWQ" \
-  --served-model-name qmd-embed \
-  --embedding-model "$PWD/models/mlx/mlx-community__Qwen3-Embedding-0.6B-4bit-DWQ" \
-  --host 127.0.0.1 \
-  --port 8092 \
-  --max-tokens 16 \
-  --log-level INFO
+scripts/start-vmlx-embedding-server.sh
 
 # New terminal:
 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
@@ -98,6 +91,8 @@ mlx/mlx-community__Qwen3-Embedding-0.6B-4bit-DWQ
 ```
 
 Do not trust the alias for embeddings yet. Use the exact local path.
+
+If Hermes reports a fresh startup from another checkout but `/v1/models` still shows this repo path, a stale listener is already holding port 8092. Use `scripts/start-vmlx-embedding-server.sh`; it refuses mismatched listeners instead of silently testing the wrong checkout. Set `QMD_MLX_KILL_STALE=1` only when you deliberately want it to kill the existing port owner.
 
 ## Next PR-safe steps
 

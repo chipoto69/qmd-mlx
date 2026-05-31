@@ -51,7 +51,10 @@ scripts/clone-qmd-sandbox.sh
 # Run repo-level verification
 scripts/verify.sh
 
-# Run the local qmd PR #619 + vMLX integration diagnostic
+# Start or reuse the local vMLX embedding server on 127.0.0.1:8092
+scripts/start-vmlx-embedding-server.sh
+
+# New terminal: run the local qmd PR #619 + vMLX integration diagnostic
 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
 ```
 
