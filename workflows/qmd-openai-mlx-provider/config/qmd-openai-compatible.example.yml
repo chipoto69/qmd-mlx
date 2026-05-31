@@ -1,0 +1,22 @@
+# Example target config for a patched qmd with OpenAI-compatible provider support.
+# This is not supported by stock qmd 2.1.0.
+
+models:
+  embed: mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ
+  rerank: mlx-community/Qwen3-Reranker-0.6B-mxfp8
+  generate: qmd-query-expansion
+
+llm:
+  provider: openai-compatible
+  baseUrl: http://127.0.0.1:8000/v1
+  apiKeyEnv: QMD_OPENAI_COMPATIBLE_API_KEY
+  timeoutMs: 120000
+
+embedding:
+  # Model-dependent. Must be measured from server response before building sqlite-vec tables.
+  expectedDimensions: null
+  normalize: true
+
+rerank:
+  endpoint: /rerank
+  responseStyle: cohere-compatible

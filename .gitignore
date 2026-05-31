@@ -1,0 +1,44 @@
+# macOS noise
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Node / Bun
+node_modules/
+bun.lockb
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sandboxes and downloaded artifacts
+.sandbox/
+models/
+output/
+logs/
+.qmd-test-home/
+.cache/
+.tmp/
+
+# qmd indexes and local config
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+qmd-index*/
+
+# Large/generated review artifacts
+review/
+renders/
+dist/
+coverage/
+
+# Local env/secrets
+.env
+.env.*
+!.env.example
