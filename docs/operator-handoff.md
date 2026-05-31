@@ -43,17 +43,16 @@ scripts/verify.sh: pass
 fake provider contract: pass; qmd hit /v1/models, /v1/embeddings, /v1/rerank, and /v1/chat/completions; Authorization forwarding verified; isolated index writes verified
 vMLX /v1/embeddings exact local model path: pass, 1024-dim vectors
 vMLX /v1/embeddings qmd-embed alias: fail, 400 alias rejected
-vMLX /v1/rerank Qwen3 reranker: fail, 500 'BaseModelOutput' object has no attribute 'shape'
-qmd update/embed/vsearch/query --no-rerank through PR #619 provider: pass
-qmd query with rerank against vMLX: fail-soft; qmd logs the rerank 500 and returns fallback retrieval scores
+vMLX /v1/rerank Qwen3 reranker: pass after local vMLX 1.5.49 patch; endpoint returns bounded relevance_score values
+qmd update/embed/vsearch/query/rerank through PR #619 provider: pass with REQUIRE_RERANK=1
 ```
 
 Bottom line:
 
 ```text
 The PR #619 OpenAI-compatible provider contract works against a deterministic fake server.
-The live MLX embedding/vector retrieval path works locally.
-The live rerank path does not work yet with vMLX + mlx-community/Qwen3-Reranker-0.6B-mxfp8.
+The live MLX embedding/vector/rerank path works locally after applying the vMLX 1.5.49 Qwen3 reranker patch.
+The remaining live runtime caveat is vMLX embedding alias rejection for `qmd-embed`.
 ```
 
 ## Reproduce from a fresh checkout
@@ -76,10 +75,16 @@ scripts/start-vmlx-embedding-server.sh
 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
 ```
 
-The diagnostic exits 0 for the current partial state because embedding/vector retrieval passes. To make rerank failure fatal:
+The live diagnostic now passes with rerank when the local vMLX patch is applied:
 
 ```bash
 REQUIRE_RERANK=1 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
+```
+
+Patch file:
+
+```text
+patches/vmlx-1.5.49-qwen3-reranker-causal.patch
 ```
 
 ## Current server state on Rudy's M4 Max
@@ -104,18 +109,16 @@ If Hermes reports a fresh startup from another checkout but `/v1/models` still s
 
 ## Next PR-safe steps
 
-1. Decide rerank server path:
-   - fix/debug vMLX Qwen3 reranker output handling, or
-   - test embed-rerank/Jina-compatible rerank server, or
-   - keep qmd `--no-rerank` for the first trace-index pilot.
-2. Add a tiny benchmark comparing stock GGUF qmd vs MLX-provider qmd on the same public fixture first.
-3. Only after private trace evals show improvement, prepare an upstream qmd branch.
-4. Do not open an upstream qmd PR unless Rudy explicitly asks for one.
+1. Turn `patches/vmlx-1.5.49-qwen3-reranker-causal.patch` into an upstream-ready vMLX branch or a local reapply script with checksum verification.
+2. Fix or work around vMLX embedding alias handling so `qmd-embed` works for `/v1/embeddings`, or keep qmd configured to the exact local model path.
+3. Add a tiny benchmark comparing stock GGUF qmd vs MLX-provider qmd on the same public fixture first.
+4. Only after private trace evals show improvement, prepare an upstream qmd branch.
+5. Do not open an upstream qmd PR unless Rudy explicitly asks for one.
 
 ## Verification snapshot
 
 ```text
 git status: clean after committed/pushed; verify with `git status -sb`
-required checks: scripts/verify.sh; scripts/test-qmd-pr619-fake-openai.sh; QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
+required checks: scripts/verify.sh; scripts/test-qmd-pr619-fake-openai.sh; REQUIRE_RERANK=1 QMD_MLX_BASE_URL=http://127.0.0.1:8092/v1 scripts/test-qmd-pr619-vmlx.sh
 remote: PUBLIC https://github.com/chipoto69/qmd-mlx
 ```

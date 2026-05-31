@@ -1,0 +1,128 @@
+--- a/vmlx_engine/reranker.py
++++ b/vmlx_engine/reranker.py
+@@ -17,6 +17,7 @@
+ from __future__ import annotations
+ 
+ import logging
++import math
+ import os
+ from dataclasses import dataclass
+ from typing import Optional
+@@ -56,6 +57,36 @@
+             return True
+         return False
+ 
++    def _is_causal_reranker_model(self, model_path: str) -> bool:
++        """Check if model should use CausalLM yes/no logit scoring.
++
++        Qwen3-Reranker is packaged as Qwen3ForCausalLM. mlx_embeddings.load()
++        can load it, but returns BaseModelOutput hidden states without logits;
++        the encoder scorer then crashes on output.shape. Route these models to
++        mlx_lm instead.
++        """
++        resolved = self._resolve_model_path(model_path)
++        if not resolved:
++            return False
++
++        config_path = os.path.join(resolved, "config.json")
++        architectures: list[str] = []
++        try:
++            import json
++            with open(config_path, "r", encoding="utf-8") as fh:
++                config = json.load(fh)
++            raw_architectures = config.get("architectures") or []
++            if isinstance(raw_architectures, list):
++                architectures = [str(item) for item in raw_architectures]
++        except Exception:
++            architectures = []
++
++        lowered_path = model_path.lower()
++        return (
++            any(arch.endswith("ForCausalLM") for arch in architectures)
++            and "reranker" in lowered_path
++        )
++
+     @staticmethod
+     def _resolve_model_path(model_path: str) -> str | None:
+         """Resolve a HF model ID or local path to a directory."""
+@@ -93,7 +124,23 @@
+             self._load_late_interaction()
+             return
+ 
+-        # 2. Try encoder model (cross-encoder / sequence classification)
++        # 2. CausalLM rerankers (e.g. Qwen3-Reranker) must not go through
++        # mlx_embeddings. mlx_embeddings.load() accepts Qwen3ForCausalLM but
++        # returns BaseModelOutput hidden states without logits, which is not a
++        # sequence-classification rerank score surface.
++        if self._is_causal_reranker_model(self.model_path):
++            try:
++                from mlx_lm import load as load_lm
++                self._model, self._tokenizer = load_lm(self.model_path)
++                self._backend = "causal"
++                logger.info(f"Loaded CausalLM reranker: {self.model_path}")
++                return
++            except Exception as e:
++                raise RuntimeError(
++                    f"Could not load causal reranker model {self.model_path}: {e}"
++                ) from e
++
++        # 3. Try encoder model (cross-encoder / sequence classification)
+         try:
+             from mlx_embeddings import load as load_embeddings
+             self._model, self._tokenizer = load_embeddings(self.model_path)
+@@ -103,7 +150,7 @@
+         except ImportError:
+             pass
+ 
+-        # 3. Fall back to CausalLM (e.g., Qwen3-Reranker)
++        # 4. Fall back to CausalLM (e.g., Qwen3-Reranker)
+         try:
+             from mlx_lm import load as load_lm
+             self._model, self._tokenizer = load_lm(self.model_path)
+@@ -424,8 +471,11 @@
+         """Score using CausalLM yes/no logit comparison (e.g., Qwen3-Reranker)."""
+         import mlx.core as mx
+ 
+-        # Unwrap TokenizerWrapper from mlx_lm.load() — it may not support __call__
++        # Keep both handles: the mlx_lm TokenizerWrapper returns plain token ID
++        # lists from apply_chat_template, while the underlying HF tokenizer may
++        # return a BatchEncoding that mlx.core.array cannot consume directly.
+         tokenizer = getattr(self._tokenizer, "_tokenizer", self._tokenizer)
++        chat_tokenizer = self._tokenizer if hasattr(self._tokenizer, "apply_chat_template") else tokenizer
+ 
+         scores = []
+ 
+@@ -447,11 +497,15 @@
+             )
+ 
+             # Tokenize
+-            if hasattr(tokenizer, "apply_chat_template"):
++            if hasattr(chat_tokenizer, "apply_chat_template"):
+                 messages = [{"role": "user", "content": prompt}]
+-                input_ids = tokenizer.apply_chat_template(
++                input_ids = chat_tokenizer.apply_chat_template(
+                     messages, add_generation_prompt=True
+                 )
++                if isinstance(input_ids, dict):
++                    input_ids = input_ids.get("input_ids", input_ids)
++                elif hasattr(input_ids, "data") and "input_ids" in input_ids.data:
++                    input_ids = input_ids.data["input_ids"]
+                 input_ids = mx.array([input_ids])
+             else:
+                 inputs = tokenizer(prompt, return_tensors="np")
+@@ -469,10 +523,13 @@
+             # Get logits for last token position
+             last_logits = logits[0, -1]
+ 
+-            # Score = log(P(yes)) - log(P(no)) via logit difference
++            # Cohere/Jina-style rerank APIs expect a bounded relevance_score.
++            # Qwen3-Reranker's causal head gives a yes-vs-no logit margin, so
++            # convert the margin to P(yes) with a sigmoid before returning.
+             yes_logit = float(last_logits[yes_id])
+             no_logit = float(last_logits[no_id])
+-            score = yes_logit - no_logit
++            diff = yes_logit - no_logit
++            score = 1.0 / (1.0 + math.exp(-diff))
+ 
+             scores.append(score)
+ 

@@ -130,6 +130,14 @@ run_step query-rerank bun src/cli/qmd.ts query $'lex: provider embeddings\nvec: 
 if grep -q 'Rerank error\|OpenAI-compatible request failed' "$LOG_DIR/query-rerank.log"; then
   soft_fail=1
 fi
+if ! grep -q 'qmd://TRACE_FIXTURE/agent-trace-sample.md' "$LOG_DIR/query-rerank.log"; then
+  echo "Rerank command completed but did not return the expected fixture." >&2
+  soft_fail=1
+fi
+if [ "${REQUIRE_RERANK:-0}" = "1" ] && ! grep -q 'rerank exact-model status 200' "$LOG_DIR/endpoint-probes.log"; then
+  echo "REQUIRE_RERANK=1 but endpoint probe did not return rerank status 200." >&2
+  soft_fail=1
+fi
 
 echo
 python3 - <<PY

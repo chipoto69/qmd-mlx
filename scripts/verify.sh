@@ -15,6 +15,8 @@ test -f README.md
 test -f workflows/qmd-openai-mlx-provider/plan.md
 test -f tests/fakes/fake_openai_provider.py
 test -f scripts/test-qmd-pr619-fake-openai.sh
+test -f patches/vmlx-1.5.49-qwen3-reranker-causal.patch
+test -f docs/vmlx-qwen3-rerank-root-cause.md
 
 echo '== bash syntax =='
 for f in scripts/*.sh; do

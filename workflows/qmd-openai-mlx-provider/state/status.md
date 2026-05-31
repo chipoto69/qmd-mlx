@@ -40,9 +40,9 @@ Current verdict:
 
 ```text
 provider contract path: works against deterministic fake OpenAI-compatible server
-embedding/vector path: works against live vMLX when qmd uses exact local embedding model path
-rerank path: blocked by vMLX/Qwen3 reranker compatibility
-upstream PR readiness: not yet; contract test exists, rerank-server decision and benchmark still needed
+embedding/vector/rerank path: works against live vMLX after local vMLX 1.5.49 Qwen3 reranker patch
+rerank root cause: vMLX misclassified Qwen3ForCausalLM reranker as encoder through mlx_embeddings, then returned raw causal logit margins instead of bounded relevance scores
+upstream PR readiness: not yet; vMLX patch needs upstream-ready packaging or reapply automation, alias handling and benchmark still needed
 ```
 
 Additional 2026-05-31 checkpoint:
@@ -51,3 +51,12 @@ Additional 2026-05-31 checkpoint:
 - Added `scripts/test-qmd-pr619-fake-openai.sh` to verify qmd PR #619 hits `/v1/models`, `/v1/embeddings`, `/v1/rerank`, and `/v1/chat/completions` with expected model IDs.
 - The fake-provider test verifies `Authorization` forwarding, qmd embedding/vector/rerank/query-expansion behavior, fixture retrieval, and isolated SQLite index writes.
 - Measured fake-provider request counts: `/v1/chat/completions`: 2, `/v1/embeddings`: 6, `/v1/models`: 2, `/v1/rerank`: 2.
+
+Rerank root-cause checkpoint:
+
+- Backed up local vMLX 1.5.49 `vmlx_engine/reranker.py` before patching.
+- Captured the local fix as `patches/vmlx-1.5.49-qwen3-reranker-causal.patch`.
+- Added `docs/vmlx-qwen3-rerank-root-cause.md` with the causal chain and verification output.
+- Verified direct local vMLX reranker path: backend `causal`, bounded scores `0.418697` vs `0.148047` for relevant vs irrelevant docs.
+- Verified live `/v1/rerank`: HTTP 200 with bounded `relevance_score` values.
+- Verified qmd PR #619 live path with `REQUIRE_RERANK=1`: `RESULT=PASS: qmd OpenAI-compatible MLX provider path passed including rerank` and returned `qmd://TRACE_FIXTURE/agent-trace-sample.md` with score `0.76`.
